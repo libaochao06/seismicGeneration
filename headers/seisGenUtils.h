@@ -25,4 +25,7 @@ int rspInterpolation(const Spectrum &oRsp, Spectrum &tRsp,std::ofstream &logFile
 bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double deltaFreq, double Td, int N, std::ofstream &logFile);
 //峰值系数计算函数
 double rPeak(double probability, double Td, double freq, double damp);
+//人工时程包络曲线计算函数
+void envelopeFuncCal(const double Td, const double tRise, const double tDrop, const double dt, const double nFour, std::vector<double> &envFunc);
+void phaseAngleFuncCal(const SeisGenPara &params, int nFour, std::vector<double> &phaseAngleFunc, phaseAngleCalMethod method);
 #endif

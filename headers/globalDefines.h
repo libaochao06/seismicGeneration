@@ -21,5 +21,6 @@ public:
 enum class spectrumXType{Freq=1,Period=2, Omega=3};
 enum class spectrumYType{Accel=0, Vel=1, Disp=2};
 enum class PSDFlag{RG160=1, Vanmarcke=2, Kaul=3};
+enum class phaseAngleCalMethod{Random=1, EnvFunc=2};
 
 #endif

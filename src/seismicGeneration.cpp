@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
             break;
         case PSDFlag::Vanmarcke:
             rspToPsdVanmarcke(tRsp, psd, deltaFreq, Td, nFour/2, logFile);
-        targetPsd.push_back(psd);
             break;
         case PSDFlag::Kaul:
             /* To Do */
@@ -87,7 +86,16 @@ int main(int argc, char* argv[])
         default:
             break;
         }
-        
+        targetPsd.push_back(psd);
+        // 人工时程包络曲线计算
+        logFile<<">>人工时程包络曲线计算开始"<<endl;
+        vector<double> envFunc;
+        envelopeFuncCal(Td, params.tRise, params.tDrop, params.dt, nFour, envFunc);
+        logFile<<">>人工时程包络曲线计算完成"<<endl;
+        logFile<<">>人工时程相位角计算开始"<<endl;
+        vector<double> phaseAngle;
+        phaseAngleFuncCal(params, nFour, phaseAngle, phaseAngleCalMethod::Random);
+        logFile<<">>人工时程相位角计算完成"<<endl;
     }
 
     /*
