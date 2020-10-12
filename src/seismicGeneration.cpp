@@ -79,7 +79,6 @@ int main(int argc, char* argv[])
             break;
         case PSDFlag::Vanmarcke:
             rspToPsdVanmarcke(tRsp, psd, deltaFreq, Td, nFour/2, logFile);
-        targetPsd.push_back(psd);
             break;
         case PSDFlag::Kaul:
             /* To Do */
@@ -87,6 +86,7 @@ int main(int argc, char* argv[])
         default:
             break;
         }
+        targetPsd.push_back(psd);
         
     }
 
