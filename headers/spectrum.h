@@ -37,7 +37,9 @@ public:
     Spectrum &operator=(const Spectrum & sp);
     ~Spectrum(){}
     spectrumXType getXType() const {return xType;}
+    void setXType(spectrumXType type) {xType=type;}
     spectrumYType getYType() const {return yType;}
+    void setYType(spectrumYType type) {yType=type;}
     float getDamp() const {return damp;}
     vector<DataPoint>::size_type getDataSize() const {return data.size();}
     void sortData(bool isAscendant=true);

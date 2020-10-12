@@ -18,6 +18,7 @@ int rspInterpolation(const Spectrum &oRsp, Spectrum &tRsp,std::ofstream &logFile
         {
             dp.setX(1.0/dp.getX());
         }
+        tRsp.setXType(spectrumXType::Freq);
     }
     //将反应谱纵坐标统一转化为加速度
     if(tRsp.getYType()!=spectrumYType::Accel)
@@ -26,6 +27,7 @@ int rspInterpolation(const Spectrum &oRsp, Spectrum &tRsp,std::ofstream &logFile
         {
             dp.setY(dp.getY()*pow(PI2*dp.getX(),(double)tRsp.getYType()));
         }
+        tRsp.setYType(spectrumYType::Accel);
     }
 
     //将反应谱按频率由小到大排序
@@ -84,7 +86,7 @@ int rspInterpolation(const Spectrum &oRsp, Spectrum &tRsp,std::ofstream &logFile
                 slop=(log10(accelNext)-log10(accelPrev))/(log10(freqNext)-log10(freqPrev));
                 value=slop*(log10(*it)-log10(freqPrev))+log10(accelPrev);
                 value=pow(10,value);
-                tRsp.getData().push_back(DataPoint(*it,value));
+                tRsp.addData(DataPoint(*it,value));
                 break;
             }
         }

@@ -240,3 +240,26 @@ int FFTParams(double tdur, double dt, double &Td, double &deltaFreq)
 
     return n;
 }
+
+double rPeak(double probability, double Td, double freq, double damp)
+{
+/**
+ * @brief 峰值系数计算函数
+ */
+    double rPeak, omega, xis, delta, coeffExp, twoN;
+    omega=PI2*freq;
+    twoN=2*freq*Td/(-log(probability));
+    if(twoN<1)
+        rPeak=1;
+    else
+    {
+        xis=damp/(1-exp(-2*damp*omega*Td));//等效阻尼比
+        delta=sqrt(4*xis/PI);//delta:带宽的一种度量
+        coeffExp=-pow(delta, 1.2)*sqrt(PI*log(twoN));//指数系数
+        rPeak=2*log(twoN*(1-exp(coeffExp)));//峰值系数的平方
+        rPeak=fmax(1, rPeak);//峰值系数不能小于1
+    }
+
+    return sqrt(rPeak);
+    
+}

@@ -65,13 +65,37 @@ int main(int argc, char* argv[])
     // 人工时程计算 Step:3 人工时程计算开始，从此步开始为每条反应谱单独生成人工时程
     logFile<<"*********************************"<<std::endl;
     logFile<<">>人工时程计算开始，从此步开始为每条反应谱单独生成人工时程"<<std::endl;
+    vector<powerSpectrumDensity> targetPsd;
     for(auto &tRsp : targetRsp)
     {
         logFile<<">>反应谱"<<tRsp.name<<"人工时时程拟合开始"<<endl;
         // 人工时程计算 Step:3.1 由目标反应谱计算近似功率密度谱
         logFile<<">>反应谱"<<tRsp.name<<"功率密度谱计算开始"<<endl;
+        powerSpectrumDensity psd(spectrumXType::Freq, spectrumYType::Accel);
+        switch (params.flag)
+        {
+        case PSDFlag::RG160:
+            /* To Do */
+            break;
+        case PSDFlag::Vanmarcke:
+            rspToPsdVanmarcke(tRsp, psd, deltaFreq, Td, nFour/2, logFile);
+        targetPsd.push_back(psd);
+            break;
+        case PSDFlag::Kaul:
+            /* To Do */
+            break;
+        default:
+            break;
+        }
+        
     }
 
+    /*
+    for(auto dp:targetPsd.front().data)
+    {
+        logFile<<dp.getX()<<' '<<dp.getY()<<endl;
+    }
+    */
     logFile.close();
 
     return 0;

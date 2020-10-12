@@ -9,6 +9,7 @@
 #include <sstream>
 #include <cmath>
 #include "spectrum.h"
+#include "powerSpectrumDensity.h"
 
 void readInput(const std::string &infileName, SeisGenPara &params, std::vector<Spectrum> &specs, std::ofstream &logFile);
 void split(const std::string& s, vector<std::string>& sv, const char flag = ' ');
@@ -18,6 +19,10 @@ double str2double(const std::string &str);
 //变换反应谱数值单位，flag=1： g->m/s2; flag=0：m/s2->g
 void changeSpectrumUnit(Spectrum &sp, int flag);
 int FFTParams(double tdur, double dt, double &Td, double &deltaFreq);
+//目标反应谱按照法规要求插值函数
 int rspInterpolation(const Spectrum &oRsp, Spectrum &tRsp,std::ofstream &logFile);
-
+//目标反应谱转功率密度谱函数1：Vanmarcke方法
+bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double deltaFreq, double Td, int N, std::ofstream &logFile);
+//峰值系数计算函数
+double rPeak(double probability, double Td, double freq, double damp);
 #endif

@@ -22,3 +22,5 @@
 >>人工时程计算开始，从此步开始为每条反应谱单独生成人工时程
 >>反应谱Target_sp1人工时时程拟合开始
 >>反应谱Target_sp1功率密度谱计算开始
+>>使用Vanmarcke方法由反应谱Target_sp1计算生成功率密度谱Target_sp1_Psd开始
+>>使用Vanmarcke方法由反应谱Target_sp1计算生成功率密度谱Target_sp1_Psd完成
