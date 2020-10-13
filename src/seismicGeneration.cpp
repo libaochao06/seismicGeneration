@@ -96,6 +96,7 @@ int main(int argc, char* argv[])
         vector<double> phaseAngle;
         phaseAngleFuncCal(params, nFour, phaseAngle, phaseAngleCalMethod::Random);
         logFile<<">>人工时程相位角计算完成"<<endl;
+        
     }
 
     /*
