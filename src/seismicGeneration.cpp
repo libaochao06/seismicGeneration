@@ -8,6 +8,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    //人工时程曲线
+    vector<double> accTimeHist;
     //判断输入参数个数是否正确
     if(argc<2)
     {
@@ -92,10 +94,13 @@ int main(int argc, char* argv[])
         vector<double> envFunc;
         envelopeFuncCal(Td, params.tRise, params.tDrop, params.dt, nFour, envFunc);
         logFile<<">>人工时程包络曲线计算完成"<<endl;
+        //人工时程相位角计算
         logFile<<">>人工时程相位角计算开始"<<endl;
         vector<double> phaseAngle;
         phaseAngleFuncCal(params, nFour, phaseAngle, phaseAngleCalMethod::Random);
         logFile<<">>人工时程相位角计算完成"<<endl;
+        //人工时程计算 Step:3.2 初始人工时程计算
+        logFile<<">>初始人工时程计算开始"<<endl;
         
     }
 
