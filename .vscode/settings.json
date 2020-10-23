@@ -44,7 +44,10 @@
         "xtree": "cpp",
         "array": "cpp",
         "iterator": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "complex": "cpp",
+        "ctime": "cpp",
+        "numeric": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

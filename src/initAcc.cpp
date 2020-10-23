@@ -15,6 +15,7 @@ void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAn
         value=2.0*(it->getY())*dw;
         ampFourier.push_back(sqrt(value));
     }
+
     //傅里叶系数数组
     std::vector<cp> fourSeries(nFour);
     fourSeries[0]=cp(0,0);

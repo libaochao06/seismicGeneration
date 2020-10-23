@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
         // 人工时程包络曲线计算
         logFile<<">>人工时程包络曲线计算开始"<<endl;
         vector<double> envFunc;
-        envelopeFuncCal(Td, params.tRise, params.tDrop, params.dt, nFour, envFunc);
+        envelopeFuncCal(params.tDuration, params.tRise, params.tDrop, params.dt, nFour, envFunc);
         logFile<<">>人工时程包络曲线计算完成"<<endl;
         //人工时程相位角计算
         logFile<<">>人工时程相位角计算开始"<<endl;
@@ -101,7 +101,29 @@ int main(int argc, char* argv[])
         logFile<<">>人工时程相位角计算完成"<<endl;
         //人工时程计算 Step:3.2 初始人工时程计算
         logFile<<">>初始人工时程计算开始"<<endl;
+        initAcc(psd, phaseAngle, nFour, accTimeHist);
+        //采用包络曲线对人工时程进行包络
+        logFile<<">>>>初始人工时程包络曲线包络调整"<<endl;
+        for(int i=0;i<nFour;i++)
+        {
+            accTimeHist.at(i)=accTimeHist.at(i)*envFunc.at(i);
+        }
+        //峰值加速度调整
+        logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
+        peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]);
+        logFile<<">>>>初始人工时程基线调整"<<endl;
         
+        logFile<<">>初始人工时程计算完成"<<endl;
+        //
+        // std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
+	    // for (auto it = accTimeHist.begin(); it != accTimeHist.end(); it++)
+	    // {
+		//     double t;
+		//     t = (it - accTimeHist.begin())*params.dt;
+		//     int loc = it - accTimeHist.begin();
+		//     double env = envFunc[loc];
+		//     ofileT << t << '\t' << env << '\t' << (*it) << '\n';
+	    // }
     }
 
     /*

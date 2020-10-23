@@ -73,7 +73,7 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
         rspVal=tRsp.getValueByX(freq);
         r=rPeak(probability, Td, freq, damp);
         double denominator, sqMeanSqDev;//功率密度谱计算公式中的分母和反应谱值的均方差的平方
-        denominator=omega/(PI/4/damp-1);
+        denominator=omega*(PI/4/damp-1);
         sqMeanSqDev=pow(rspVal/r, 2);
         psdVal=(sqMeanSqDev-gSum)/denominator;
         //对功率密度谱进行累积求和
@@ -114,6 +114,7 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
         psd.data.push_back(DataPoint(i*df,0));
     
     //
+    
     logFile<<">>使用Vanmarcke方法由反应谱"<<tRsp.name<<"计算生成功率密度谱"<<psd.name<<"完成"<<std::endl;
     return true;
 }

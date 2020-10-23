@@ -31,4 +31,5 @@ void envelopeFuncCal(const double Td, const double tRise, const double tDrop, co
 void phaseAngleFuncCal(const SeisGenPara &params, int nFour, std::vector<double> &phaseAngleFunc, phaseAngleCalMethod method);
 void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAngle, const int nFour, std::vector<double> &accTimeHist);
 void fastFourierTrans(const std::vector<std::complex<double>> &in, std::vector<std::complex<double>> &out, int inv);
+void peakAdjust(std::vector<double> &acc, double amp);
 #endif
