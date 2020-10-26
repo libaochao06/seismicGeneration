@@ -7,7 +7,7 @@ void peakAdjust(std::vector<double>& acc, double amp)
     {
         accMax=fmax(accMax, fabs(*it));
     }
-    double ratio=amp*G/accMax;
+    double ratio=amp/accMax;
     for(auto it=acc.begin();it!=acc.end();it++)
     {
         *it=(*it)*ratio;

@@ -1,4 +1,6 @@
 #include "seisGenUtils.h"
+#include <numeric>
+#include <algorithm>
 
 using std::vector;
 using std::ifstream;
@@ -262,4 +264,61 @@ double rPeak(double probability, double Td, double freq, double damp)
 
     return sqrt(rPeak);
     
+}
+
+void accTimeHistIntegral(const std::vector<double> &acc, std::vector<double> &vel, std::vector<double> &disp, double dt)
+{
+    //由加速度时程积分求速度及位移时程曲线
+    //v_(t+1)=v_t+(a_t+a_(t+1))*dt/2;
+    //u_(t+1)=u_t+v_t*dt+(a_t/3+a_(t+1)/6)*dt^2
+    std::vector<double>::size_type accSize=acc.size();
+    vel.resize(accSize);
+    disp.resize(accSize);
+    
+    vel[0]=0;
+    disp[0]=0;
+    
+    for(int i=1;i<accSize;i++)
+    {
+        vel[i]=vel[i-1]+(acc[i-1]+acc[i])*dt/2;
+        disp[i]=disp[i-1]+vel[i-1]*dt+(acc[i-1]/3+acc[i]/6)*pow(dt,2);
+    }
+}
+
+void baselineAdjust(std::vector<double> &acc, double dt)
+{
+    //求加速度时程最大值，以备后面修正加速度峰值
+    double accMax=0;
+    for(auto it=acc.begin();it!=acc.end();it++)
+    {
+        accMax=fmax(accMax, fabs(*it));
+    }
+    //速度、位移时程曲线临时数组
+    std::vector<double> vel, disp;
+    double Td=acc.size()*dt;//总时长
+    double a0,a1;//修正系数
+    double t;//当前时刻
+    std::vector<double> ft;
+    accTimeHistIntegral(acc, vel, disp, dt);
+    for(int i=0;i<disp.size();i++)
+    {
+        double value=0;
+        t=i*dt;
+        value=disp[i]*(3*Td-2*t)*pow(t,2);
+        ft.push_back(value);
+    }
+    double sum=0;
+    sum=std::accumulate(ft.begin()+1,ft.end()-1,0.0);
+    sum=sum+(ft.front()+ft.back())/2.0;
+    sum=sum*dt;
+    a1=28.0/13.0/pow(Td,2)*(2*vel.back()-15.0/pow(Td,5)*sum);
+    a0=vel.back()/Td-a1*Td/2;
+    //修正加速度曲线acc
+    for(int i=0;i<acc.size();i++)
+    {
+        t=i*dt;
+        acc.at(i)=acc.at(i)-(a0+a1*t);
+    }
+    //修正加速度峰值
+    peakAdjust(acc, accMax);
 }

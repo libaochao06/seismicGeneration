@@ -28,8 +28,18 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
 double rPeak(double probability, double Td, double freq, double damp);
 //人工时程包络曲线计算函数
 void envelopeFuncCal(const double Td, const double tRise, const double tDrop, const double dt, const double nFour, std::vector<double> &envFunc);
+//相位角计算函数
 void phaseAngleFuncCal(const SeisGenPara &params, int nFour, std::vector<double> &phaseAngleFunc, phaseAngleCalMethod method);
+//初始时程计算函数
 void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAngle, const int nFour, std::vector<double> &accTimeHist);
+//快速傅里叶变换计算函数
 void fastFourierTrans(const std::vector<std::complex<double>> &in, std::vector<std::complex<double>> &out, int inv);
+//峰值调整计算函数
 void peakAdjust(std::vector<double> &acc, double amp);
+//基线调整计算函数
+void baselineAdjust(std::vector<double> &acc, double dt);
+//加速度积分求速度和位移曲线
+void accTimeHistIntegral(const std::vector<double> &acc, std::vector<double> &vel, std::vector<double> &disp, double dt);
+//时程曲线积分求反应谱函数
+void timeHistToSpectrum(const std::vector<double> &acc, const std::vector<double> &freqCtrl, double dt, Spectrum &calSpec);
 #endif

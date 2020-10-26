@@ -110,20 +110,30 @@ int main(int argc, char* argv[])
         }
         //峰值加速度调整
         logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
-        peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]);
+        peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G);
         logFile<<">>>>初始人工时程基线调整"<<endl;
-        
+        baselineAdjust(accTimeHist, params.dt);
         logFile<<">>初始人工时程计算完成"<<endl;
+        logFile<<">>人工时程反应谱包络检查开始"<<endl;
+        logFile<<">>>>时程转化为反应谱"<<endl;
+        Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, tRsp.getDamp());
+        timeHistToSpectrum(accTimeHist, tRsp.getXSeries(),params.dt,calSpec);
         //
-        // std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
-	    // for (auto it = accTimeHist.begin(); it != accTimeHist.end(); it++)
+        std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
+	    // for (int i=0;i<tRsp.getDataSize();i++)
 	    // {
-		//     double t;
-		//     t = (it - accTimeHist.begin())*params.dt;
-		//     int loc = it - accTimeHist.begin();
-		//     double env = envFunc[loc];
-		//     ofileT << t << '\t' << env << '\t' << (*it) << '\n';
+		//     double freq;
+		//     freq=tRsp[i].getX();
+		//     ofileT << freq << '\t' << tRsp[i].getY() << '\t' << calSpec[i].getY() << '\n';
 	    // }
+        for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
+        {
+            double t;
+            t=(it-accTimeHist.begin())*params.dt;
+            ofileT<<t<<"\t"<<*it<<endl;
+        }
+        ofileT.close();
+        
     }
 
     /*
