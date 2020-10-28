@@ -42,4 +42,10 @@ void baselineAdjust(std::vector<double> &acc, double dt);
 void accTimeHistIntegral(const std::vector<double> &acc, std::vector<double> &vel, std::vector<double> &disp, double dt);
 //时程曲线积分求反应谱函数
 void timeHistToSpectrum(const std::vector<double> &acc, const std::vector<double> &freqCtrl, double dt, Spectrum &calSpec);
+//纽马克线性加速度法积分
+void integralNewmark(const std::vector<double> &acc, const std::vector<double> &freqCtrl, double dt, Spectrum &calSpec);
+//计算反应谱与目标谱反应包络性检查
+bool targetRspEnvCheck(const Spectrum &targetRsp, const Spectrum &calRsp, std::ofstream &logFile);
+//根据目标反应谱对人工时程进行调整
+void rspMatching(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile);
 #endif

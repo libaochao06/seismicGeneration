@@ -28,10 +28,10 @@ int main(int argc, char* argv[])
 
     //****************************************************************
     // 人工时程计算 Step:1 原始谱数据处理及全局计算参数计算
-    for(auto it=specs.begin();it!=specs.end();it++)
-    {
-        changeSpectrumUnit(*it, 1);
-    }
+    // for(auto it=specs.begin();it!=specs.end();it++)
+    // {
+    //     changeSpectrumUnit(*it, 1);
+    // }
     // 计算总持时，频率间隔
     double Td, deltaFreq;
     //傅里叶变换总点数
@@ -111,20 +111,26 @@ int main(int argc, char* argv[])
         //峰值加速度调整
         logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
         peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G);
+        //基线调整
         logFile<<">>>>初始人工时程基线调整"<<endl;
         baselineAdjust(accTimeHist, params.dt);
         logFile<<">>初始人工时程计算完成"<<endl;
-        logFile<<">>人工时程反应谱包络检查开始"<<endl;
-        logFile<<">>>>时程转化为反应谱"<<endl;
-        Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, tRsp.getDamp());
-        timeHistToSpectrum(accTimeHist, tRsp.getXSeries(),params.dt,calSpec);
+        //目标反应谱包络性调整
+        logFile<<">>人工时程反应谱包络性调整开始"<<endl;
+        rspMatching(accTimeHist, tRsp, params, logFile);
+        // //由人工时程计算反应谱
+        // logFile<<">>>>时程转化为反应谱"<<endl;
+        // Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, tRsp.getDamp());
+        // //Spectrum calNewmark=calSpec;
+        // timeHistToSpectrum(accTimeHist, tRsp.getXSeries(),params.dt,calSpec);
+        //integralNewmark(accTimeHist, tRsp.getXSeries(), params.dt, calNewmark);
         //
         std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
 	    // for (int i=0;i<tRsp.getDataSize();i++)
 	    // {
 		//     double freq;
 		//     freq=tRsp[i].getX();
-		//     ofileT << freq << '\t' << tRsp[i].getY() << '\t' << calSpec[i].getY() << '\n';
+		//     ofileT << freq << '\t' << tRsp[i].getY() << '\t' << calSpec[i].getX() << '\t'<<calSpec[i].getY()<<'\t'<<calNewmark[i].getX()<<'\t'<<calNewmark[i].getY()<<'\n';
 	    // }
         for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
         {
@@ -133,15 +139,9 @@ int main(int argc, char* argv[])
             ofileT<<t<<"\t"<<*it<<endl;
         }
         ofileT.close();
-        
+        //*******************************************************
+        //计算反应谱与目标谱对比
     }
-
-    /*
-    for(auto dp:targetPsd.front().data)
-    {
-        logFile<<dp.getX()<<' '<<dp.getY()<<endl;
-    }
-    */
     logFile.close();
 
     return 0;

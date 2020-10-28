@@ -111,7 +111,7 @@ DataPoint &Spectrum::operator[](int i)
 
 DataPoint Spectrum::operator[](int i) const
 {
-    if(i>=0 && i<data.size()-1)
+    if(i>=0 && i<=data.size()-1)
         return data[i];
     else
         throw "Out of range!";
