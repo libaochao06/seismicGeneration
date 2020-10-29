@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
         // timeHistToSpectrum(accTimeHist, tRsp.getXSeries(),params.dt,calSpec);
         //integralNewmark(accTimeHist, tRsp.getXSeries(), params.dt, calNewmark);
         //
+        
         std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
 	    // for (int i=0;i<tRsp.getDataSize();i++)
 	    // {

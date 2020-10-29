@@ -18,7 +18,7 @@ void rspMatching(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPar
     Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, targetRsp.getDamp());
     timeHistToSpectrum(acc, targetRsp.getXSeries(), params.dt, calSpec);
     int nCycle=0;
-    const int MaxNumCycle=40;
+    const int MaxNumCycle=10;
     bool isChecked;
     isChecked=targetRspEnvCheck(targetRsp, calSpec,logFile);
     while(!isChecked)
@@ -127,10 +127,11 @@ void rspMatching(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPar
             break;
         }
 
-
         if(nCycle>=MaxNumCycle)
             break;
     }
+
+
     std::ofstream ofileT("Spectrum.txt", std::ios_base::out);
 	for (int i=0;i<targetRsp.getDataSize();i++)
 	{

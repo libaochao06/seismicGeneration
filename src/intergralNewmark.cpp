@@ -37,6 +37,7 @@ void integralNewmark(const std::vector<double> &acc, const std::vector<double> &
             ui=uiNew;
             vi=viNew;
         }
+
         calSpec.addData(DataPoint(freq,maxAcc));
     }
 }
