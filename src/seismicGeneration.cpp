@@ -117,29 +117,29 @@ int main(int argc, char* argv[])
         logFile<<">>初始人工时程计算完成"<<endl;
         //目标反应谱包络性调整
         logFile<<">>人工时程反应谱包络性调整开始"<<endl;
-        rspMatching(accTimeHist, tRsp, params, logFile);
-        // //由人工时程计算反应谱
-        // logFile<<">>>>时程转化为反应谱"<<endl;
-        // Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, tRsp.getDamp());
-        // //Spectrum calNewmark=calSpec;
-        // timeHistToSpectrum(accTimeHist, tRsp.getXSeries(),params.dt,calSpec);
-        //integralNewmark(accTimeHist, tRsp.getXSeries(), params.dt, calNewmark);
-        //
         
-        std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
-	    // for (int i=0;i<tRsp.getDataSize();i++)
-	    // {
-		//     double freq;
-		//     freq=tRsp[i].getX();
-		//     ofileT << freq << '\t' << tRsp[i].getY() << '\t' << calSpec[i].getX() << '\t'<<calSpec[i].getY()<<'\t'<<calNewmark[i].getX()<<'\t'<<calNewmark[i].getY()<<'\n';
-	    // }
-        for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
-        {
-            double t;
-            t=(it-accTimeHist.begin())*params.dt;
-            ofileT<<t<<"\t"<<*it<<endl;
-        }
-        ofileT.close();
+        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+        narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+        //timeHistAdjust(accTimeHist, tRsp, params, logFile);
+        
+        // std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
+	    // // for (int i=0;i<tRsp.getDataSize();i++)
+	    // // {
+		// //     double freq;
+		// //     freq=tRsp[i].getX();
+		// //     ofileT << freq << '\t' << tRsp[i].getY() << '\t' << calSpec[i].getX() << '\t'<<calSpec[i].getY()<<'\t'<<calNewmark[i].getX()<<'\t'<<calNewmark[i].getY()<<'\n';
+	    // // }
+        // for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
+        // {
+        //     double t;
+        //     t=(it-accTimeHist.begin())*params.dt;
+        //     ofileT<<t<<"\t"<<*it<<endl;
+        // }
+        // ofileT.close();
         //*******************************************************
         //计算反应谱与目标谱对比
     }
