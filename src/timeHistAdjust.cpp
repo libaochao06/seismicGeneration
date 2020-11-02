@@ -25,7 +25,7 @@ void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGen
         //傅里叶幅值调整
         targetRspMatchAdjust(acc, targetRsp, params, logFile);
         //窄带时程调整
-        narrowBandAdjust(acc, targetRsp, params, logFile);
+        //narrowBandAdjust(acc, targetRsp, params, logFile);
         //重新计算反应谱并对其按照法规要求进行检查
         timeHistToSpectrum(acc, targetRsp.getXSeries(), params.dt, calSpec);
         isChecked=targetRspEnvCheck(targetRsp, calSpec, logFile);
@@ -49,4 +49,5 @@ void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGen
         valueC=calSpec[i].getY();
         ofileT<<freq<<'\t'<<valueT<<'\t'<<valueC<<std::endl;
     }
+    ofileT.close();
 }

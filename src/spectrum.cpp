@@ -52,7 +52,7 @@ double Spectrum::getValueByX(double x) const
     if(x<temp.front().getX() || x>temp.back().getX())
     {
         std::cout<<"函数 Spectrum::getValueByX 出现错误!\n";
-        std::cout<<"输入X数值超出反应谱X轴数据范围!"<<std::endl;
+        std::cout<<"输入X数值: "<<x<<"超出反应谱X轴数据范围!"<<std::endl;
         abort;
     }
 

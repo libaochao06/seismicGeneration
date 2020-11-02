@@ -7,6 +7,11 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
      */
     logFile<<">>>>采用傅里叶幅值谱调整法对人工时程进行调整"<<std::endl;
     //
+    double maxAcc=0;
+    for(auto it=acc.begin();it!=acc.end();it++)
+    {
+        maxAcc=fmax(maxAcc,fabs(*it));
+    }
     typedef std::complex<double> cp;
     //频率增量
     double deltaFreq=1.0/(acc.size()-1)/params.dt;
@@ -37,6 +42,9 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
         //由点值求系数
         fastFourierTrans(accSeries, fourSeries, -1);
         //求傅里叶幅值和相位角
+        // phaseAngleFuncCal(params, acc.size(), phiFourier, phaseAngleCalMethod::EnvFunc);
+        // phiFourier.insert(phiFourier.begin(), 0.0);
+        //
         for(auto it=fourSeries.begin();it!=fourSeries.end();it++)
         {
             ampFourier.push_back(abs(*it));
@@ -51,7 +59,9 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
             int loc;
             loc=it-freqCtrl.cbegin();
             ratio=targetRsp[loc].getY()/calSpec[loc].getY();
-            ratio=fabs(ratio)*(1+0.9*targetRsp.getDamp());
+            if(0.99<ratio<1.01)
+                continue;
+            //ratio=fabs(ratio);//(1+0.9*targetRsp.getDamp());
             //确定频率修正区间
             if(it==freqCtrl.cbegin())
             {
@@ -61,27 +71,39 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
             else if(it==freqCtrl.cend()-1)
             {
                 freq1=0.5*(*it+(*(it-1)));
-                freq2=*it*1.01;
+                freq2=*it*1.0;
             }
             else
             {
                 freq1=0.5*(*it+(*(it-1)));
                 freq2=0.5*(*it+(*(it+1)));
             }
-            // double ratio1, ratio2;
-            // ratio1=targetRsp.getValueByX(freq1)/calSpec.getValueByX(freq1);
-            // ratio2=targetRsp.getValueByX(freq2)/calSpec.getValueByX(freq2);
+            double ratio1, ratio2;
+            ratio1=targetRsp.getValueByX(freq1)/calSpec.getValueByX(freq1);
+            ratio2=targetRsp.getValueByX(freq2)/calSpec.getValueByX(freq2);
+            //std::cout<<ratio1<<' '<<ratio<<' '<<ratio2<<std::endl;
             //在频率区间内进行傅里叶幅值调整
             for(int j=1;j<fourSeries.size()/2;j++)
             {
                 double freq;
                 freq=deltaFreq*j;
-                if(freq>=freq1 &&freq<freq2)
+                //std::cout<<deltaFreq<<std::endl;
+                if(freq>=freq1 &&freq<=freq2)
                 {
-                    //ratio=(ratio2-ratio1)/(freq2-freq1)*(freq-freq1)+ratio1;
+                    double ratioF;
+                    if(freq<=*it)
+                    {
+                        ratioF=(ratio-ratio1)/(*it-freq1)*(freq-freq1)+ratio1;
+                        ratioF=fabs(ratioF)*(1+0.15*targetRsp.getDamp());
+                    }
+                    else
+                    {
+                        ratioF=(ratio2-ratio)/(freq2-*it)*(freq-*it)+ratio;
+                        ratioF=fabs(ratioF)*(1+0.01*targetRsp.getDamp());
+                    }
                     //ratio=fabs(ratio)*(1.0+0.3*targetRsp.getDamp());
                     //fourSeries.at(j)=fourSeries.at(j)*ratio;
-                    ampFourier.at(j)=ampFourier.at(j)*ratio;
+                    ampFourier.at(j)=ampFourier.at(j)*ratioF;
                 }
                 if(freq>freq2)
                     break;

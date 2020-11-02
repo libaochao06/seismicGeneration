@@ -20,6 +20,8 @@ void narrowBandAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisG
         std::vector<double> temp;
         double freq, maxAcc, maxTime, omega, omegac;//频率，最大加速度， 最大加速度出现时刻，角频率，角频率带宽
         freq=freqCtrl.at(i);
+        if(freq<=3)
+            continue;
         omega=PI2*freq;
         //求角频率带宽
         if(i==0)

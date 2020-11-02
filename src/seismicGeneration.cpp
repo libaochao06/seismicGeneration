@@ -118,21 +118,37 @@ int main(int argc, char* argv[])
         //目标反应谱包络性调整
         logFile<<">>人工时程反应谱包络性调整开始"<<endl;
         
-        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
-        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
-        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
-        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
-        targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
-        narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+        Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, tRsp.getDamp());
+        timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
+        //判断计算反应谱与目标反应之间是否满足法规要求
+        bool isChecked;
+
+        for(int ii=0;ii<10;ii++)
+        {
+            targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+        }
+        
+        // for(int ii=0;ii<10;ii++)
+        // {
+        //     narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+        // }
+        
+        isChecked=targetRspEnvCheck(tRsp, calSpec,logFile);
+        //std::cout<<isChecked<<std::endl;
+        std::ofstream ofileT("Spectrum.txt", std::ios_base::out);
+        for(int i=0;i<tRsp.getDataSize();i++)
+        {
+            double freq, valueT, valueC;
+            freq=tRsp[i].getX();
+            valueT=tRsp[i].getY();
+            valueC=calSpec[i].getY();
+            ofileT<<freq<<'\t'<<valueT<<'\t'<<valueC<<std::endl;
+        }
+        ofileT.close();
+        //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
         //timeHistAdjust(accTimeHist, tRsp, params, logFile);
         
         // std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
-	    // // for (int i=0;i<tRsp.getDataSize();i++)
-	    // // {
-		// //     double freq;
-		// //     freq=tRsp[i].getX();
-		// //     ofileT << freq << '\t' << tRsp[i].getY() << '\t' << calSpec[i].getX() << '\t'<<calSpec[i].getY()<<'\t'<<calNewmark[i].getX()<<'\t'<<calNewmark[i].getY()<<'\n';
-	    // // }
         // for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
         // {
         //     double t;
