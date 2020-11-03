@@ -47,7 +47,7 @@ void integralNewmark(const std::vector<double> &acc, const std::vector<double> &
 //计算反应谱与目标谱反应包络性检查
 bool targetRspEnvCheck(const Spectrum &targetRsp, const Spectrum &calRsp, std::ofstream &logFile);
 //根据目标反应谱对人工时程进行调整
-void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile);
+void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile);
 //最大反应计算
 void maxResp(const std::vector<double> &acc, double freq, double damp, double dt, std::vector<double> &results);
 //窄带时程调整法对人工时程进行调整

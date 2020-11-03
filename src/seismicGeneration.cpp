@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
         //人工时程相位角计算
         logFile<<">>人工时程相位角计算开始"<<endl;
         vector<double> phaseAngle;
-        phaseAngleFuncCal(params, nFour, phaseAngle, phaseAngleCalMethod::Random);
+        phaseAngleFuncCal(params, nFour, phaseAngle, phaseAngleCalMethod::EnvFunc);
         logFile<<">>人工时程相位角计算完成"<<endl;
         //人工时程计算 Step:3.2 初始人工时程计算
         logFile<<">>初始人工时程计算开始"<<endl;
@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
 
         for(int ii=0;ii<10;ii++)
         {
-            targetRspMatchAdjust(accTimeHist, tRsp, params, logFile);
+            fourierAmplitudeAdjust(accTimeHist, tRsp, params, logFile);
         }
         
         // for(int ii=0;ii<10;ii++)

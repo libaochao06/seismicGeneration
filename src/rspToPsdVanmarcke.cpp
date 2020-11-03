@@ -111,8 +111,9 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
     }
     
     for(;i<N;i++)
+    {
         psd.data.push_back(DataPoint(i*df,0));
-    
+    }
     //
     
     logFile<<">>使用Vanmarcke方法由反应谱"<<tRsp.name<<"计算生成功率密度谱"<<psd.name<<"完成"<<std::endl;

@@ -49,11 +49,19 @@ double Spectrum::getValueByX(double x) const
     vector<DataPoint> temp=data;
     sort(temp.begin(), temp.end(), xLessEqual);
 
-    if(x<temp.front().getX() || x>temp.back().getX())
+    // if(x<temp.front().getX() || x>temp.back().getX())
+    if(x<temp.front().getX())
     {
-        std::cout<<"函数 Spectrum::getValueByX 出现错误!\n";
-        std::cout<<"输入X数值: "<<x<<"超出反应谱X轴数据范围!"<<std::endl;
-        abort;
+        value=temp.front().getY();
+        return value;
+        // std::cout<<"函数 Spectrum::getValueByX 出现错误!\n";
+        // std::cout<<"输入X数值: "<<x<<"超出反应谱X轴数据范围!"<<std::endl;
+        // abort;
+    }
+    if(x>temp.back().getX())
+    {
+        value=temp.back().getY();
+        return value;
     }
 
     for(auto it=temp.begin(); it!=temp.end()-1; it++)

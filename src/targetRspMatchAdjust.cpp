@@ -1,6 +1,6 @@
 #include "seisGenUtils.h"
 
-void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile)
+void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile)
 {
     /**
      * @brief 人工时程曲线目标谱拟合函数
@@ -59,9 +59,7 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
             int loc;
             loc=it-freqCtrl.cbegin();
             ratio=targetRsp[loc].getY()/calSpec[loc].getY();
-            if(0.99<ratio<1.01)
-                continue;
-            //ratio=fabs(ratio);//(1+0.9*targetRsp.getDamp());
+            ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
             //确定频率修正区间
             if(it==freqCtrl.cbegin())
             {
@@ -71,16 +69,16 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
             else if(it==freqCtrl.cend()-1)
             {
                 freq1=0.5*(*it+(*(it-1)));
-                freq2=*it*1.0;
+                freq2=*it*1.1;
             }
             else
             {
                 freq1=0.5*(*it+(*(it-1)));
                 freq2=0.5*(*it+(*(it+1)));
             }
-            double ratio1, ratio2;
-            ratio1=targetRsp.getValueByX(freq1)/calSpec.getValueByX(freq1);
-            ratio2=targetRsp.getValueByX(freq2)/calSpec.getValueByX(freq2);
+            // double ratio1, ratio2;
+            // ratio1=targetRsp.getValueByX(freq1)/calSpec.getValueByX(freq1);
+            // ratio2=targetRsp.getValueByX(freq2)/calSpec.getValueByX(freq2);
             //std::cout<<ratio1<<' '<<ratio<<' '<<ratio2<<std::endl;
             //在频率区间内进行傅里叶幅值调整
             for(int j=1;j<fourSeries.size()/2;j++)
@@ -88,22 +86,22 @@ void targetRspMatchAdjust(std::vector<double> &acc, const Spectrum &targetRsp, S
                 double freq;
                 freq=deltaFreq*j;
                 //std::cout<<deltaFreq<<std::endl;
-                if(freq>=freq1 &&freq<=freq2)
+                if(freq>=freq1 &&freq<freq2)
                 {
-                    double ratioF;
-                    if(freq<=*it)
-                    {
-                        ratioF=(ratio-ratio1)/(*it-freq1)*(freq-freq1)+ratio1;
-                        ratioF=fabs(ratioF)*(1+0.15*targetRsp.getDamp());
-                    }
-                    else
-                    {
-                        ratioF=(ratio2-ratio)/(freq2-*it)*(freq-*it)+ratio;
-                        ratioF=fabs(ratioF)*(1+0.01*targetRsp.getDamp());
-                    }
+                    // double ratioF;
+                    // if(freq<=*it)
+                    // {
+                    //     ratioF=(ratio-ratio1)/(*it-freq1)*(freq-freq1)+ratio1;
+                    //     ratioF=fabs(ratioF)*(1+0.1*targetRsp.getDamp());
+                    // }
+                    // else
+                    // {
+                    //     ratioF=(ratio2-ratio)/(freq2-*it)*(freq-*it)+ratio;
+                    //     ratioF=fabs(ratioF)*(1+0.01*targetRsp.getDamp());
+                    // }
                     //ratio=fabs(ratio)*(1.0+0.3*targetRsp.getDamp());
-                    //fourSeries.at(j)=fourSeries.at(j)*ratio;
-                    ampFourier.at(j)=ampFourier.at(j)*ratioF;
+                    // fourSeries.at(j)=fourSeries.at(j)*ratio;
+                    ampFourier.at(j)=ampFourier.at(j)*ratio;
                 }
                 if(freq>freq2)
                     break;
