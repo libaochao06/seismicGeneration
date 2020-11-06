@@ -98,6 +98,7 @@ int main(int argc, char* argv[])
         logFile<<">>人工时程相位角计算开始"<<endl;
         vector<double> phaseAngle;
         phaseAngleFuncCal(params, nFour, phaseAngle, phaseAngleCalMethod::EnvFunc);
+
         logFile<<">>人工时程相位角计算完成"<<endl;
         //人工时程计算 Step:3.2 初始人工时程计算
         logFile<<">>初始人工时程计算开始"<<endl;
@@ -123,9 +124,17 @@ int main(int argc, char* argv[])
         //判断计算反应谱与目标反应之间是否满足法规要求
         bool isChecked;
 
-        for(int ii=0;ii<10;ii++)
+        for(int ii=0;ii<1000;ii++)
         {
             fourierAmplitudeAdjust(accTimeHist, tRsp, params, logFile);
+            timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
+            double error;
+            error=errorCalRspToTargetRsp(tRsp, calSpec);
+            if(error<0.05)
+            {
+                std::cout<<ii<<std::endl;
+                break;
+            }
         }
         
         // for(int ii=0;ii<10;ii++)

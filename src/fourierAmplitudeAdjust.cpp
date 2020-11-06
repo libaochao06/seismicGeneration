@@ -50,6 +50,7 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
             ampFourier.push_back(abs(*it));
             phiFourier.push_back(std::arg(*it));
         }
+
         //频率区间
         std::vector<double> freqCtrl;
         freqCtrl=targetRsp.getXSeries();
@@ -59,7 +60,21 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
             int loc;
             loc=it-freqCtrl.cbegin();
             ratio=targetRsp[loc].getY()/calSpec[loc].getY();
-            ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
+            // ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
+            if(ratio<0.7)
+            {
+                ratio=fabs(ratio)*(1-0.3*targetRsp.getDamp());
+            }
+            else if(ratio>1.1)
+            {
+                ratio=fabs(ratio)*(1+targetRsp.getDamp());
+            }
+            else
+            {
+                 ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
+            }
+            
+            
             //确定频率修正区间
             if(it==freqCtrl.cbegin())
             {
@@ -81,10 +96,12 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
             // ratio2=targetRsp.getValueByX(freq2)/calSpec.getValueByX(freq2);
             //std::cout<<ratio1<<' '<<ratio<<' '<<ratio2<<std::endl;
             //在频率区间内进行傅里叶幅值调整
-            for(int j=1;j<fourSeries.size()/2;j++)
+            for(int j=0;j<fourSeries.size()/2;j++)
             {
                 double freq;
                 freq=deltaFreq*j;
+                if(freq<freqCtrl.front())
+                    ampFourier.at(j)=0;
                 //std::cout<<deltaFreq<<std::endl;
                 if(freq>=freq1 &&freq<freq2)
                 {
@@ -110,7 +127,7 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
         
         //重新计算系数数组
         //傅里叶幅值调整完成后，由新的幅值计算傅里叶系数数组，相位角保持不变
-        fourSeries[0]=cp(0,0);
+        fourSeries[0]=ampFourier.front()*cp(cos(phiFourier.front()), sin(phiFourier.front()));
         for(int i=1;i<fourSeries.size()/2;i++)
         {
             double phi=phiFourier.at(i);

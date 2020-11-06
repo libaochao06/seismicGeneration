@@ -31,7 +31,8 @@ void phaseAngleFuncCal(const SeisGenPara &params, int nFour, std::vector<double>
             int N;//相位差个数
             vector<double> phaseAngleDiff, envFunc;//相位差分数组及计算用包络曲线
             //计算用包络曲线数据点个数128-256基本上够用
-            envelopeFuncCal(params.dt*(nFour-1), params.tRise, params.tDrop, params.dt, 256, envFunc);
+            // envelopeFuncCal(params.dt*(nFour-1), params.tRise, params.tDrop, params.dt, 256, envFunc);
+            envelopeFuncCal(params.tDuration, params.tRise, params.tDrop, params.dt, 256, envFunc);
             vector<double> acculProbalDenFunc;//包络曲线的累积概率密度函数
             N=nFour/2-2;
             phaseAngleFunc.resize(N+1);
@@ -49,16 +50,17 @@ void phaseAngleFuncCal(const SeisGenPara &params, int nFour, std::vector<double>
             for(int i=0;i<N;i++)
             {
                 double random;
-                int nAcc=99;
+                int nAcc=999;
                 random=rand()%(nAcc+1)/(float)(nAcc+1);
                 for(auto it=acculProbalDenFunc.begin()+1;it!=acculProbalDenFunc.end();it++)
                 {
-                    if(random<*it)
+                    if(random<=*it)
                     {
                         double dy=*it-*(it-1);
+                        double dx=1.0/(envFunc.size()-1);
                         double phidiff;
-                        int loc=it-acculProbalDenFunc.begin();
-                        phidiff=(loc+(random-*(it-1))/dy)*PI2/(envFunc.size()-1);
+                        int loc=it-1-acculProbalDenFunc.begin();
+                        phidiff=(loc+(random-*(it-1))/dy)*PI2*dx;
                         phaseAngleDiff[i]=phidiff;
                         break;
                     }

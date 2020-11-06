@@ -54,4 +54,6 @@ void maxResp(const std::vector<double> &acc, double freq, double damp, double dt
 void narrowBandAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile);
 //人工时程拟合调整函数
 void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile);
+//计算反应谱与目标反应谱误差计算函数
+double errorCalRspToTargetRsp(const Spectrum &targetRsp, const Spectrum &calRsp);
 #endif

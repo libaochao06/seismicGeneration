@@ -19,6 +19,7 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
     //频率上、下限取目标谱频率上、下限
     freqMin=tRsp.getData().front().getX();
     freqMax=tRsp.getData().back().getX();
+    // freqMax=0.5*deltaFreq*(N-1);
     freqMin=fmax(freqMin, 0.05);//设置频率下限不得小于0.05Hz
     omegaMax=PI2*freqMax;
     omegaMin=PI2*freqMin;
