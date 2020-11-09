@@ -137,34 +137,35 @@ int main(int argc, char* argv[])
             }
         }
         
-        // for(int ii=0;ii<10;ii++)
-        // {
-        //     narrowBandAdjust(accTimeHist, tRsp, params, logFile);
-        // }
+        for(int ii=0;ii<1;ii++)
+        {
+            narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+            timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
+        }
         
         isChecked=targetRspEnvCheck(tRsp, calSpec,logFile);
         //std::cout<<isChecked<<std::endl;
-        std::ofstream ofileT("Spectrum.txt", std::ios_base::out);
+        std::ofstream ofileS("Spectrum.txt", std::ios_base::out);
         for(int i=0;i<tRsp.getDataSize();i++)
         {
             double freq, valueT, valueC;
             freq=tRsp[i].getX();
             valueT=tRsp[i].getY();
             valueC=calSpec[i].getY();
-            ofileT<<freq<<'\t'<<valueT<<'\t'<<valueC<<std::endl;
+            ofileS<<freq<<'\t'<<valueT<<'\t'<<valueC<<std::endl;
         }
-        ofileT.close();
+        ofileS.close();
         //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
         //timeHistAdjust(accTimeHist, tRsp, params, logFile);
         
-        // std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
-        // for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
-        // {
-        //     double t;
-        //     t=(it-accTimeHist.begin())*params.dt;
-        //     ofileT<<t<<"\t"<<*it<<endl;
-        // }
-        // ofileT.close();
+        std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
+        for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
+        {
+            double t;
+            t=(it-accTimeHist.begin())*params.dt;
+            ofileT<<t<<"\t"<<*it<<endl;
+        }
+        ofileT.close();
         //*******************************************************
         //计算反应谱与目标谱对比
     }
