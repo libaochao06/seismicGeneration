@@ -1,6 +1,6 @@
 #include "seisGenUtils.h"
 
-void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile)
+void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile)
 {
     /**
      * @brief 人工时程曲线目标谱拟合函数
@@ -60,19 +60,19 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
             int loc;
             loc=it-freqCtrl.cbegin();
             ratio=targetRsp[loc].getY()/calSpec[loc].getY();
-            // ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
-            if(ratio<0.7)
-            {
-                ratio=fabs(ratio)*(1-0.3*targetRsp.getDamp());
-            }
-            else if(ratio>1.1)
-            {
-                ratio=fabs(ratio)*(1+targetRsp.getDamp());
-            }
-            else
-            {
-                 ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
-            }
+            ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
+            // if(ratio<0.7)
+            // {
+            //     ratio=fabs(ratio)*(1-0.3*targetRsp.getDamp());
+            // }
+            // else if(ratio>1.1)
+            // {
+            //     ratio=fabs(ratio)*(1+targetRsp.getDamp());
+            // }
+            // else
+            // {
+            //      ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
+            // }
             
             
             //确定频率修正区间
@@ -132,7 +132,7 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
         {
             double phi=phiFourier.at(i);
             fourSeries.at(i)=ampFourier.at(i)*cp(cos(phi),sin(phi));
-            fourSeries.at(fourSeries.size()-1)=std::conj(fourSeries.at(i));
+            fourSeries.at(fourSeries.size()-i)=std::conj(fourSeries.at(i));
         }
         fourSeries.at(fourSeries.size()/2)=ampFourier.at(ampFourier.size()/2);
         //由系数求点值

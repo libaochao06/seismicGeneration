@@ -103,15 +103,12 @@ int main(int argc, char* argv[])
         //人工时程计算 Step:3.2 初始人工时程计算
         logFile<<">>初始人工时程计算开始"<<endl;
         initAcc(psd, phaseAngle, nFour, accTimeHist);
-        //采用包络曲线对人工时程进行包络
-        logFile<<">>>>初始人工时程包络曲线包络调整"<<endl;
-        for(int i=0;i<nFour;i++)
-        {
-            accTimeHist.at(i)=accTimeHist.at(i)*envFunc.at(i);
-        }
         //峰值加速度调整
         logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
         peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G);
+        //采用包络曲线对人工时程进行包络
+        logFile<<">>>>初始人工时程包络曲线包络调整"<<endl;
+        accEnvelop(accTimeHist, envFunc);
         //基线调整
         logFile<<">>>>初始人工时程基线调整"<<endl;
         baselineAdjust(accTimeHist, params.dt);
@@ -124,27 +121,31 @@ int main(int argc, char* argv[])
         //判断计算反应谱与目标反应之间是否满足法规要求
         bool isChecked;
 
-        for(int ii=0;ii<1000;ii++)
+        for(int ii=0;ii<100;ii++)
         {
             fourierAmplitudeAdjust(accTimeHist, tRsp, params, logFile);
+            targetPsdAdjust(accTimeHist, psd, params, logFile);
+            peakAdjust(accTimeHist,params.maxAccels[&tRsp-&targetRsp[0]]*G);
+            // accEnvelop(accTimeHist, envFunc);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
             double error;
             error=errorCalRspToTargetRsp(tRsp, calSpec);
-            if(error<0.05)
+            if(error<0.03)
             {
                 std::cout<<ii<<std::endl;
                 break;
             }
         }
-        
+        // peakAdjust(accTimeHist,params.maxAccels[&tRsp-&targetRsp[0]]*G);
+        accEnvelop(accTimeHist, envFunc);
         for(int ii=0;ii<1;ii++)
         {
-            narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+            //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
         }
         
         isChecked=targetRspEnvCheck(tRsp, calSpec,logFile);
-        //std::cout<<isChecked<<std::endl;
+        std::cout<<isChecked<<std::endl;
         std::ofstream ofileS("Spectrum.txt", std::ios_base::out);
         for(int i=0;i<tRsp.getDataSize();i++)
         {

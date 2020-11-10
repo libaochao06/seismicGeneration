@@ -1,6 +1,6 @@
 #include "seisGenUtils.h"
 
-void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, SeisGenPara params, std::ofstream &logFile)
+void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile)
 {
     //峰值加速度
     double maxAcc=0;

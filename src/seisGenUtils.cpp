@@ -322,3 +322,11 @@ void baselineAdjust(std::vector<double> &acc, double dt)
     //修正加速度峰值
     peakAdjust(acc, accMax);
 }
+
+void accEnvelop(std::vector<double> &acc, const std::vector<double> &envFunc)
+{
+    for(int i=0;i<acc.size();i++)
+    {
+        acc.at(i)=acc.at(i)*envFunc.at(i);
+    }
+}
