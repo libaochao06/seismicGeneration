@@ -103,12 +103,13 @@ int main(int argc, char* argv[])
         //人工时程计算 Step:3.2 初始人工时程计算
         logFile<<">>初始人工时程计算开始"<<endl;
         initAcc(psd, phaseAngle, nFour, accTimeHist);
-        //峰值加速度调整
-        logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
-        peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G);
         //采用包络曲线对人工时程进行包络
         logFile<<">>>>初始人工时程包络曲线包络调整"<<endl;
         accEnvelop(accTimeHist, envFunc);
+        //峰值加速度调整
+        logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
+        peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G,0);
+        peakReduction(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G, envFunc);
         //基线调整
         logFile<<">>>>初始人工时程基线调整"<<endl;
         baselineAdjust(accTimeHist, params.dt);
@@ -120,13 +121,14 @@ int main(int argc, char* argv[])
         timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
         //判断计算反应谱与目标反应之间是否满足法规要求
         bool isChecked;
-
-        for(int ii=0;ii<100;ii++)
+        for(int ii=0;ii<50;ii++)
         {
+            
             fourierAmplitudeAdjust(accTimeHist, tRsp, params, logFile);
             targetPsdAdjust(accTimeHist, psd, params, logFile);
-            peakAdjust(accTimeHist,params.maxAccels[&tRsp-&targetRsp[0]]*G);
-            // accEnvelop(accTimeHist, envFunc);
+            // peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G);
+            // peakReduction(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G, envFunc);
+            // baselineAdjust(accTimeHist, params.dt);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
             double error;
             error=errorCalRspToTargetRsp(tRsp, calSpec);
@@ -136,9 +138,10 @@ int main(int argc, char* argv[])
                 break;
             }
         }
+        // accEnvelop(accTimeHist, envFunc);
+        // baselineAdjust(accTimeHist, params.dt);
         // peakAdjust(accTimeHist,params.maxAccels[&tRsp-&targetRsp[0]]*G);
-        accEnvelop(accTimeHist, envFunc);
-        for(int ii=0;ii<1;ii++)
+        for(int ii=0;ii<0;ii++)
         {
             //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);

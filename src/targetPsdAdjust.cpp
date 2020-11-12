@@ -61,5 +61,5 @@ void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, 
         acc.at(i)=accSeries.at(i).real();
     }
     //基线调整
-    baselineAdjust(acc, params.dt);
+    // baselineAdjust(acc, params.dt);
 }

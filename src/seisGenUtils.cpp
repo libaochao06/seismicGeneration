@@ -320,7 +320,15 @@ void baselineAdjust(std::vector<double> &acc, double dt)
         acc.at(i)=acc.at(i)-(a0+a1*t);
     }
     //修正加速度峰值
-    peakAdjust(acc, accMax);
+    double newAccMax=0;
+    for(auto it=acc.cbegin();it!=acc.cend();it++)
+    {
+        newAccMax=fmax(newAccMax, fabs(*it));
+    }
+    for(auto it=acc.begin();it!=acc.end();it++)
+    {
+        *it=(*it)/newAccMax*accMax;
+    }
 }
 
 void accEnvelop(std::vector<double> &acc, const std::vector<double> &envFunc)
@@ -329,4 +337,27 @@ void accEnvelop(std::vector<double> &acc, const std::vector<double> &envFunc)
     {
         acc.at(i)=acc.at(i)*envFunc.at(i);
     }
+}
+
+void peakReduction(std::vector<double> &acc, double amp, const std::vector<double> &envFunc)
+{
+    for(int i=0;i<acc.size();i++)
+    {
+        double target;
+        target=envFunc.at(i)*amp;
+        if(fabs(acc.at(i))>target)
+        {
+            acc.at(i)=acc.at(i)/fabs(acc.at(i))*target;
+        }
+    }
+}
+
+double maxAbsOfTimeHist(const std::vector<double> &acc)
+{
+    double maxAbs=0;
+    for(auto it=acc.cbegin();it!=acc.cend();it++)
+    {
+        maxAbs=fmax(maxAbs,fabs(*it));
+    }
+    return maxAbs;
 }

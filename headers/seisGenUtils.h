@@ -38,6 +38,9 @@ void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAn
 void fastFourierTrans(const std::vector<std::complex<double>> &in, std::vector<std::complex<double>> &out, int inv);
 //峰值调整计算函数
 void peakAdjust(std::vector<double> &acc, double amp);
+void peakAdjust(std::vector<double> &acc, double amp, int flag);
+//时程曲线削峰函数
+void peakReduction(std::vector<double> &acc, double amp, const std::vector<double> &envFunc);
 //基线调整计算函数
 void baselineAdjust(std::vector<double> &acc, double dt);
 //加速度积分求速度和位移曲线
@@ -52,6 +55,7 @@ bool targetRspEnvCheck(const Spectrum &targetRsp, const Spectrum &calRsp, std::o
 void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile);
 //最大反应计算
 void maxResp(const std::vector<double> &acc, double freq, double damp, double dt, std::vector<double> &results);
+double maxResp(const std::vector<double> &acc, double freq, double damp, double dt);
 //窄带时程调整法对人工时程进行调整
 void narrowBandAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile);
 //人工时程拟合调整函数
@@ -62,4 +66,8 @@ double errorCalRspToTargetRsp(const Spectrum &targetRsp, const Spectrum &calRsp)
 void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, const SeisGenPara &params, std::ofstream &logFile);
 //由人工时程计算功率谱函数
 void timeHistToPsd(const std::vector<double> &acc, powerSpectrumDensity &psd, const SeisGenPara &params);
+//查找时程曲线绝对值的最大值
+double maxAbsOfTimeHist(const std::vector<double> &acc);
+//时程响应卷积计算方法
+void respConvolution(const std::vector<double> &f, const std::vector<double> &g, std::vector<double> &out, const SeisGenPara &params);
 #endif
