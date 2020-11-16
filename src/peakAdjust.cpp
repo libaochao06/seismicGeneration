@@ -15,21 +15,22 @@ void peakAdjust(std::vector<double>& acc, double amp)
     }
     //计算调整系数
     double ratio=amp/accMax;
-    if(ratio>1.3)
-    {
-        peakAdjust(acc, amp,0);
-        return;
-    }
-    if(fabs(1.0-ratio)<0.01)
-    {
-        return;
-    }
+    // if(ratio>1.3)
+    // {
+    //     timeHistScale(acc, ratio);
+    //     return;
+    // }
+    // if(fabs(1.0-ratio)<0.01)
+    // {
+    //     return;
+    // }
     //
     int numPeak;//时程曲线极值点调整个数
-    numPeak=100;
+    numPeak=10;
     //数据点调整标识符
     //若已被调整过则为1，否则为0
     std::vector<int> indice;
+    indice.clear();
     for(int i=0;i<acc.size();i++)
     {
         indice.push_back(0);
@@ -113,30 +114,9 @@ void peakAdjust(std::vector<double>& acc, double amp)
             for(int j=left;j<right;j++)
             {
                 acc.at(j)=acc.at(j)*ratio;
+                // acc.at(j)=amp;
             }
             // acc.at(i)=0.99*amp;
         }
     }
-}
-
-void peakAdjust(std::vector<double>& acc, double amp, int flag)
-{
-    if(flag!=0)
-    {
-        peakAdjust(acc, amp);
-        return;
-    }
-    else
-    {
-        double accMax=0;
-        for(auto it=acc.begin(); it!=acc.end();it++)
-        {
-            accMax=fmax(accMax, fabs(*it));
-        }
-        for(auto it=acc.begin();it!=acc.end();it++)
-        {
-            *it=(*it)*amp/accMax;
-        }
-    }
-    
 }

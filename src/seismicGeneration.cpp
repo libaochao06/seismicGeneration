@@ -89,6 +89,12 @@ int main(int argc, char* argv[])
             break;
         }
         targetPsd.push_back(psd);
+        // ofstream ofilePsd("powerSpectrumDensity.txt",ios_base::out);
+        // for(auto it=psd.data.begin();it!=psd.data.end();it++)
+        // {
+        //     ofilePsd<<it->getX()<<'\t'<<it->getY()<<endl;
+        // }
+        // ofilePsd.close();
         // 人工时程包络曲线计算
         logFile<<">>人工时程包络曲线计算开始"<<endl;
         vector<double> envFunc;
@@ -108,8 +114,9 @@ int main(int argc, char* argv[])
         accEnvelop(accTimeHist, envFunc);
         //峰值加速度调整
         logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
-        peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G,0);
-        peakReduction(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G, envFunc);
+        double desiredAmp;
+        desiredAmp=params.maxAccels[&tRsp-&targetRsp[0]]*G;
+        timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
         //基线调整
         logFile<<">>>>初始人工时程基线调整"<<endl;
         baselineAdjust(accTimeHist, params.dt);
@@ -126,9 +133,11 @@ int main(int argc, char* argv[])
             
             fourierAmplitudeAdjust(accTimeHist, tRsp, params, logFile);
             targetPsdAdjust(accTimeHist, psd, params, logFile);
-            // peakAdjust(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G);
-            // peakReduction(accTimeHist, params.maxAccels[&tRsp-&targetRsp[0]]*G, envFunc);
-            // baselineAdjust(accTimeHist, params.dt);
+            // timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
+            // accEnvelop(accTimeHist, envFunc);
+            // peakAdjust(accTimeHist, desiredAmp);
+            // peakReduction(accTimeHist, desiredAmp);
+            baselineAdjust(accTimeHist, params.dt);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
             double error;
             error=errorCalRspToTargetRsp(tRsp, calSpec);
@@ -138,9 +147,11 @@ int main(int argc, char* argv[])
                 break;
             }
         }
-        // accEnvelop(accTimeHist, envFunc);
+        accEnvelop(accTimeHist, envFunc);
+        timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
+        timeHistScale(accTimeHist, 1.01);
         // baselineAdjust(accTimeHist, params.dt);
-        // peakAdjust(accTimeHist,params.maxAccels[&tRsp-&targetRsp[0]]*G);
+        // peakReduction(accTimeHist, desiredAmp, envFunc);
         for(int ii=0;ii<0;ii++)
         {
             //narrowBandAdjust(accTimeHist, tRsp, params, logFile);

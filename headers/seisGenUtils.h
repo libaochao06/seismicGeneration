@@ -38,9 +38,9 @@ void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAn
 void fastFourierTrans(const std::vector<std::complex<double>> &in, std::vector<std::complex<double>> &out, int inv);
 //峰值调整计算函数
 void peakAdjust(std::vector<double> &acc, double amp);
-void peakAdjust(std::vector<double> &acc, double amp, int flag);
 //时程曲线削峰函数
 void peakReduction(std::vector<double> &acc, double amp, const std::vector<double> &envFunc);
+void peakReduction(std::vector<double> &acc, double amp);
 //基线调整计算函数
 void baselineAdjust(std::vector<double> &acc, double dt);
 //加速度积分求速度和位移曲线
@@ -70,4 +70,9 @@ void timeHistToPsd(const std::vector<double> &acc, powerSpectrumDensity &psd, co
 double maxAbsOfTimeHist(const std::vector<double> &acc);
 //时程响应卷积计算方法
 void respConvolution(const std::vector<double> &f, const std::vector<double> &g, std::vector<double> &out, const SeisGenPara &params);
+//时程曲线整体缩放
+//**按照比例系数及曲线进行缩放
+void timeHistScale(std::vector<double> &acc, const double factor, const std::vector<double> &curve);
+//**按照比例系数进行缩放
+void timeHistScale(std::vector<double> &acc, const double factor);
 #endif

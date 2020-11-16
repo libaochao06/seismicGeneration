@@ -26,6 +26,9 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
 
     //当omega=0时，功率密度G(w)=0
     psd.data.push_back(DataPoint(0,0));
+    //G(w)最小值为G(w)在omegaMin处的值，当角频率小于omegaMin时，G(w)值按照线性插值计算
+    double Gmin;
+    Gmin=2*damp*pow(tRsp.getValueByX(freqMin),2)/omegaMin/rPeak(probability,Td, freqMin, damp)/PI;
     int ii=1;
     //循环计算各频率下的功率密度
     while(omega<omegaMax)
@@ -35,6 +38,7 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
 	* 如果没有给定频率增量步，则根据目标反应谱的频率值计算当前omega值
 	* 在循环中计算当前角频率下的功率密度谱值
     */
+        double psdMin, xMin;
         if(deltaFreq!=0)
         {
             omega+=PI2*deltaFreq;
@@ -59,8 +63,11 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
                logFile<<"错误！当前角频率<0！"<<std::endl;
                return false;
             }
-            //当角频率小于下限时，功率密度谱值为0
-            psd.data.push_back(DataPoint(omega/PI2,0));
+            //当角频率小于下限时，功率密度谱值在[0,omegaMin]范围内线性插值
+            //xMin，psdMin分别为最后一个小于omegaMin频率点处的频率为G(w)值
+            xMin=omega;
+            psdMin=Gmin/omegaMin*omega;
+            psd.data.push_back(DataPoint(omega/PI2,psdMin));
             continue;
         }
         else if(omega>omegaMax)
@@ -69,6 +76,8 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
             omega=omegaMax;
             break;
         }
+        //
+        gSum=0.5*xMin*psdMin;
         double rspVal, r, psdVal;//反应谱值，峰值系数，功率密度谱值
         freq=omega/PI2;
         rspVal=tRsp.getValueByX(freq);
@@ -78,19 +87,20 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
         sqMeanSqDev=pow(rspVal/r, 2);
         psdVal=(sqMeanSqDev-gSum)/denominator;
         //对功率密度谱进行累积求和
-        if(omega==omegaMin)
-        {
-            gSum=0.5*omegaMin*psdVal;//起始初值
-        }
-        else
-        {
+        // if(omega==omegaMin)
+        // {
+        //     std::cout<<"YES"<<std::endl;
+        //     gSum=0.5*omegaMin*psdVal;//起始初值
+        // }
+        // else
+        // {
             if(deltaFreq!=0)
                 gSum+=PI2*deltaFreq*psdVal;
             else
             {
                 gSum+=PI2*fabs(tRsp[ii-1].getX()-tRsp[ii-2].getX())*psdVal;
             }
-        }
+        // }
         psd.data.push_back(DataPoint(freq, psdVal));
         
         if(ii>N)

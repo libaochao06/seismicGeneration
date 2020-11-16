@@ -352,6 +352,17 @@ void peakReduction(std::vector<double> &acc, double amp, const std::vector<doubl
     }
 }
 
+void peakReduction(std::vector<double> &acc, double amp)
+{
+    for(auto it=acc.begin();it!=acc.end();it++)
+    {
+        if(fabs(*it)>amp)
+        {
+            *it=*it/fabs(*it)*amp;
+        }
+    }
+}
+
 double maxAbsOfTimeHist(const std::vector<double> &acc)
 {
     double maxAbs=0;
@@ -360,4 +371,22 @@ double maxAbsOfTimeHist(const std::vector<double> &acc)
         maxAbs=fmax(maxAbs,fabs(*it));
     }
     return maxAbs;
+}
+
+void timeHistScale(std::vector<double> &acc, const double factor, const std::vector<double> &curve)
+{
+    for(int i=0;i<acc.size();i++)
+    {
+        double scaleFactor;
+        scaleFactor=factor*curve.at(i);
+        acc.at(i)=acc.at(i)*scaleFactor;
+    }
+}
+
+void timeHistScale(std::vector<double> &acc, const double factor)
+{
+    for(auto it=acc.begin();it!=acc.end();it++)
+    {
+        *it=(*it)*factor;
+    }
 }
