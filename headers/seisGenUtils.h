@@ -24,6 +24,7 @@ int FFTParams(double tdur, double dt, double &Td, double &deltaFreq);
 int rspInterpolation(const Spectrum &oRsp, Spectrum &tRsp,std::ofstream &logFile);
 //目标反应谱转功率密度谱函数1：Vanmarcke方法
 bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double deltaFreq, double Td, int N, std::ofstream &logFile);
+bool rspToPsdVanmarckeIterate(const Spectrum &tRsp, powerSpectrumDensity &psd, double deltaFreq, double Td, int N, std::ofstream &logFile);
 //峰值系数计算函数
 double rPeak(double probability, double Td, double freq, double damp);
 //人工时程包络曲线计算函数

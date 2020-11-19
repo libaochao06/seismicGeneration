@@ -10,7 +10,7 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
  */
 {
     double omegaMax, omegaMin, freqMax, freqMin;//角频率及频率上、下限
-    const double probability=0.85;//超越概率
+    const double probability=0.75;//超越概率
     double omega=0, freq;//角频率，频率
     double gSum=0;//功率密度函数对角频率积分求和
     double damp=tRsp.getDamp();
@@ -128,5 +128,91 @@ bool rspToPsdVanmarcke(const Spectrum &tRsp, powerSpectrumDensity &psd, double d
     //
     
     logFile<<">>使用Vanmarcke方法由反应谱"<<tRsp.name<<"计算生成功率密度谱"<<psd.name<<"完成"<<std::endl;
+    return true;
+}
+//Vanmarcke迭代方式计算功率密度谱
+bool rspToPsdVanmarckeIterate(const Spectrum &tRsp, powerSpectrumDensity &psd, double deltaFreq, double Td, int N, std::ofstream &logFile)
+{
+    double omegaMax, omegaMin, freqMax, freqMin;//角频率及频率上、下限
+    const double probability=0.75;//超越概率
+    double omega=0, freq;//角频率，频率
+    double gSum=0;//功率密度函数对角频率积分求和
+    double damp=tRsp.getDamp();
+    psd.name=tRsp.name+"_Psd";
+    logFile<<">>使用Vanmarcke方法由反应谱"<<tRsp.name<<"计算生成功率密度谱"<<psd.name<<"开始"<<std::endl;
+    //频率上、下限取目标谱频率上、下限
+    freqMin=tRsp.getData().front().getX();
+    freqMax=tRsp.getData().back().getX();
+    // freqMax=0.5*deltaFreq*(N-1);
+    freqMin=fmax(freqMin, 0.05);//设置频率下限不得小于0.05Hz
+    omegaMax=PI2*freqMax;
+    omegaMin=PI2*freqMin;
+    double Gmin;
+    Gmin=2*damp*pow(tRsp.getValueByX(freqMin),2)/omegaMin/rPeak(probability,Td, freqMin, damp)/PI;
+    //功率密度谱初始值
+    psd.data.push_back(DataPoint(0,0));
+    omega+=PI2*deltaFreq;
+    while(omega<omegaMax)
+    {
+        double rValue, rspValue, psdValue;
+        freq=omega/PI2;
+        rValue=rPeak(probability, Td, freq, damp);
+        rspValue=tRsp.getValueByX(freq);
+        psdValue=pow(rspValue/rValue,2)/omega/(PI/4/damp-1);
+        psd.data.push_back(DataPoint(freq, psdValue));
+        omega+=PI2*deltaFreq;
+    }
+
+    std::vector<double> freqs, values, valuesNew;
+    for(auto it=psd.data.cbegin();it!=psd.data.cend();it++)
+    {
+        freqs.push_back(it->getX());
+        values.push_back(it->getY());
+    }
+    valuesNew=values;
+
+    int nIt=0;
+    while(1)
+    {
+        gSum=0;
+        double deltaOmega;
+        for(int i=1;i<freqs.size();i++)
+        {
+            freq=freqs.at(i);
+            omega=PI2*freq;
+            deltaOmega=PI2*deltaFreq;
+            gSum+=values.at(i)*deltaOmega;
+            double rValue, rspValue;
+            rValue=rPeak(probability, Td, freq, damp);
+            rspValue=tRsp.getValueByX(freq);
+            valuesNew.at(i)=(pow(rspValue/rValue,2)-gSum)/omega/(PI/4/damp-1);
+        }
+        double err=0;
+        for(int i=1;i<values.size();i++)
+        {
+            err=err+pow((valuesNew.at(i)-values.at(i))/values.at(i),2);
+        }
+        err=sqrt(err)/values.size();
+        if(err<0.01)
+        {
+            std::cout<<err<<std::endl;
+            break;
+        }
+        if(nIt>1000)
+        {
+            std::cout<<nIt<<' '<<err<<std::endl;
+            break;
+        }
+        nIt++;
+    }
+    for(int i=0;i<valuesNew.size();i++)
+    {
+        psd.data.at(i).setY(valuesNew.at(i));
+    }
+    for(int i=psd.data.size();i<N;i++)
+    {
+        psd.data.push_back(DataPoint(i*deltaFreq, 0));
+    }
+
     return true;
 }

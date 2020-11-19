@@ -92,7 +92,8 @@ int main(int argc, char* argv[])
         // ofstream ofilePsd("powerSpectrumDensity.txt",ios_base::out);
         // for(auto it=psd.data.begin();it!=psd.data.end();it++)
         // {
-        //     ofilePsd<<it->getX()<<'\t'<<it->getY()<<endl;
+        //     int loc=it-psd.data.begin();
+        //     ofilePsd<<it->getX()<<'\t'<<it->getY()<<'\t'<<psd2.data.at(loc).getY()<<endl;
         // }
         // ofilePsd.close();
         // 人工时程包络曲线计算
@@ -123,7 +124,6 @@ int main(int argc, char* argv[])
         logFile<<">>初始人工时程计算完成"<<endl;
         //目标反应谱包络性调整
         logFile<<">>人工时程反应谱包络性调整开始"<<endl;
-        
         Spectrum calSpec(spectrumXType::Freq, spectrumYType::Accel, tRsp.getDamp());
         timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
         //判断计算反应谱与目标反应之间是否满足法规要求
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
             // accEnvelop(accTimeHist, envFunc);
             // peakAdjust(accTimeHist, desiredAmp);
             // peakReduction(accTimeHist, desiredAmp);
-            baselineAdjust(accTimeHist, params.dt);
+            // baselineAdjust(accTimeHist, params.dt);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
             double error;
             error=errorCalRspToTargetRsp(tRsp, calSpec);
@@ -147,16 +147,16 @@ int main(int argc, char* argv[])
                 break;
             }
         }
-        accEnvelop(accTimeHist, envFunc);
-        timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
-        timeHistScale(accTimeHist, 1.01);
+        // accEnvelop(accTimeHist, envFunc);
+        // timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
+        // timeHistScale(accTimeHist, 1.01);
         // baselineAdjust(accTimeHist, params.dt);
         // peakReduction(accTimeHist, desiredAmp, envFunc);
-        for(int ii=0;ii<0;ii++)
-        {
-            //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+        // for(int ii=0;ii<0;ii++)
+        // {
+        //     //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
-        }
+        // }
         
         isChecked=targetRspEnvCheck(tRsp, calSpec,logFile);
         std::cout<<isChecked<<std::endl;
@@ -177,7 +177,9 @@ int main(int argc, char* argv[])
         for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
         {
             double t;
-            t=(it-accTimeHist.begin())*params.dt;
+            int loc;
+            loc=it-accTimeHist.begin();
+            t=loc*params.dt;
             ofileT<<t<<"\t"<<*it<<endl;
         }
         ofileT.close();
