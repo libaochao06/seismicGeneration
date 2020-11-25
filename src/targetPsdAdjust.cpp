@@ -1,6 +1,6 @@
 #include "seisGenUtils.h"
 
-void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, const SeisGenPara &params, std::ofstream &logFile)
+void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, const SeisGenPara &params, const std::vector<double> &phaseAngle, std::ofstream &logFile)
 {
     typedef std::complex<double> cp;
     //按照法规要求计算时程的功率密度谱
@@ -50,10 +50,19 @@ void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, 
         if(freq>25)
             break;
     }
-    for(int i=1;i<nSize/2;i++)
-    {
-        fourSeries.at(nSize-i)=std::conj(fourSeries.at(i));
-    }
+    // std::vector<double> ampFourier;
+    // for(auto it=fourSeries.begin();it!=fourSeries.end();it++)
+    // {
+    //     ampFourier.push_back(abs(*it));
+    // }
+    // fourSeries.at(0)=cp(0,0);
+    // for(int i=1;i<nSize/2;i++)
+    // {
+    //     double phi=phaseAngle.at(i-1);
+    //     fourSeries.at(i)=ampFourier.at(i)*cp(cos(phi), sin(phi));
+    //     fourSeries.at(nSize-i)=std::conj(fourSeries.at(i));
+    // }
+    // fourSeries.at(nSize/2)=cp(ampFourier.at(nSize/2),0);
     //根据调整后的傅里叶系数计算新的时程曲线
     fastFourierTrans(fourSeries, accSeries, 1);
     for(int i=0;i<nSize;i++)

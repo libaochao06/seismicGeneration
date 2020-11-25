@@ -390,3 +390,137 @@ void timeHistScale(std::vector<double> &acc, const double factor)
         *it=(*it)*factor;
     }
 }
+
+void transFunction(double omega0, double deltaOmega, double damp, int nSize, std::vector<std::complex<double>> &Hw)
+{
+    Hw.clear();
+    for(int i=0;i<nSize;i++)
+    {
+        double omega;
+        omega=deltaOmega*i;
+        std::complex<double> up, down;
+        up.real(pow(omega0,2));
+        up.imag(2*damp*omega*omega0);
+        down.real(pow(omega0,2)-pow(omega,2));
+        down.imag(2*damp*omega*omega0);
+        Hw.push_back(up/down);
+    }
+}
+
+void narrowBandAcc(double deltaS, double omegac, double omega, double maxTime, int nSize, double dt, std::vector<double> &deltaAcc)
+{
+    deltaAcc.clear();
+    double t, value;
+    for(int i=0;i<nSize;i++)
+    {
+        t=i*dt;
+        if(fabs(t-maxTime)<1e-5)
+        {
+            value=deltaS;
+        }
+        else
+        {
+            double tmp;
+            int power=4;
+            tmp=sin(omegac*(t-maxTime))/omegac/(t-maxTime);
+            value=deltaS*pow(tmp,power)*cos(omega*(t-maxTime));
+        }
+        deltaAcc.push_back(value);
+    }
+}
+
+void nBandAccRevByTransFunc(std::vector<double> &deltaAcc, const std::vector<std::complex<double>> &Haw)
+{
+    typedef std::complex<double> cp;
+    int nSize=deltaAcc.size();
+    // std::vector<double> oldAcc=deltaAcc;
+    std::vector<cp> fourSeries, accSeries;
+    fourSeries.clear();
+    accSeries.clear();
+    //计算时程曲线的复数形式
+    for(auto it=deltaAcc.begin();it!=deltaAcc.end();it++)
+    {
+        accSeries.push_back(cp(*it,0));
+    }
+    //由傅里叶变换，点值求系数
+    fastFourierTrans(accSeries, fourSeries, -1);
+    //计算窄带时程傅里叶系数与传递系数的比值
+    fourSeries.front()=fourSeries.front()/Haw.front();
+    for(int j=1; j<nSize/2;j++)
+    {
+        fourSeries.at(j)=fourSeries.at(j)/Haw.at(j);
+        fourSeries.at(nSize-j)=std::conj(fourSeries.at(j));
+    }
+    fourSeries.at(nSize/2)=fourSeries.at(nSize/2)/Haw.at(nSize/2);
+    //傅里叶逆变换，由系数求点值
+    fastFourierTrans(fourSeries, accSeries, 1);
+    //将求得的反演时程赋值给deltaAcc
+    for(int j=0;j<accSeries.size();j++)
+    {
+        deltaAcc.at(j)=accSeries.at(j).real();
+    }
+}
+
+void nBandAccEndAdjust(std::vector<double> &deltaAcc, const double damp, double dt, const double deltaS, const double maxTime, const double omegac, const double omega)
+{
+    int nSize=deltaAcc.size();
+    double Td=(nSize-1)*dt;
+    double maxDeltaAcc;
+    maxDeltaAcc=maxAbsOfTimeHist(deltaAcc);
+    bool isChecked=true;
+    std::vector<double> deltaAccExtend;
+    if(fabs(deltaAcc.front())/maxDeltaAcc>0.01)
+    {
+        isChecked=false;
+    }
+    if(fabs(deltaAcc.back())/maxDeltaAcc>0.01)
+    {
+        isChecked=false;
+    }
+    int nCount=0;
+    while(!isChecked)
+    {
+        double addTime, nMaxTime, nTd;
+        addTime=nSize*dt*pow(2,nCount);
+        nMaxTime=maxTime+addTime;
+        nTd=Td+addTime;
+        int nLen;
+        nLen=nSize*pow(2,nCount+1);
+        for(int i=0;i<nLen;i++)
+        {
+            double t, value;
+            t=i*dt;
+            if(fabs(t-nMaxTime)<1e-5)
+            {
+                value=deltaS;
+            }
+            else
+            {
+                double tmp;
+                tmp=sin(omegac*(t-nMaxTime))/omegac/(t-nMaxTime);
+                value=deltaS*pow(tmp, 4)*cos(omega*(t-nMaxTime));
+            }
+            deltaAccExtend.push_back(value);            
+        }
+        std::vector<std::complex<double>> Haw;
+        double ome0;
+        ome0=omega/sqrt(1-damp*damp);
+        transFunction(ome0, PI2/nTd, damp, nLen, Haw);
+        nBandAccRevByTransFunc(deltaAccExtend, Haw);
+        for(int i=0;i<nSize;i++)
+        {
+            deltaAcc.at(i)=deltaAccExtend.at(nLen/2+i);
+        }
+        nCount++;
+        maxDeltaAcc=maxAbsOfTimeHist(deltaAcc);
+        if(fabs(deltaAcc.front())/maxDeltaAcc<=0.01)
+        {
+            if(fabs(deltaAcc.back())/maxDeltaAcc<=0.01)
+            {
+                isChecked=true;
+            }
+        }
+        if(nCount>100)
+            break;
+    }
+}

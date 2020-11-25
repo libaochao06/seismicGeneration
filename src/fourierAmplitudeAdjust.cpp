@@ -1,6 +1,6 @@
 #include "seisGenUtils.h"
 
-void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile)
+void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, const std::vector<double> &phaseAngle, std::ofstream &logFile)
 {
     /**
      * @brief 人工时程曲线目标谱拟合函数
@@ -22,8 +22,8 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
     std::vector<cp> fourSeries, accSeries;
     fourSeries.clear();
     accSeries.clear();
-    accSeries.push_back(cp(0, 0));
-    for (int i = 1; i < acc.size(); i++)
+    // accSeries.push_back(cp(0, 0));
+    for (int i = 0; i < acc.size(); i++)
     {
         accSeries.push_back(cp(acc.at(i), 0));
     }
@@ -48,21 +48,13 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
         int loc;
         loc = it - freqCtrl.cbegin();
         ratio = targetRsp[loc].getY() / calSpec[loc].getY();
-        ratio = fabs(ratio) * (1 + 0.3 * targetRsp.getDamp());
+        //如果ratio<1且>0.95，则不进行调整
+        if(ratio<1 && ratio>0.98)
+        {
+            continue;
+        }
 
-        // ratio=fabs(ratio)*1.05;
-        // if(ratio<0.7)
-        // {
-        //     ratio=fabs(ratio)*(1-0.3*targetRsp.getDamp());
-        // }
-        // else if(ratio>1.1)
-        // {
-        //     ratio=fabs(ratio)*(1+targetRsp.getDamp());
-        // }
-        // else
-        // {
-        //      ratio=fabs(ratio)*(1+0.3*targetRsp.getDamp());
-        // }
+        ratio = fabs(ratio) * (1 + 0.3 * targetRsp.getDamp());
 
         //确定频率修正区间
         if (it == freqCtrl.cbegin())
@@ -83,12 +75,14 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
         // double ratio1, ratio2;
         // ratio1=targetRsp.getValueByX(freq1)/calSpec.getValueByX(freq1);
         // ratio2=targetRsp.getValueByX(freq2)/calSpec.getValueByX(freq2);
-        //std::cout<<ratio1<<' '<<ratio<<' '<<ratio2<<std::endl;
         //在频率区间内进行傅里叶幅值调整
         for (int j = 0; j < fourSeries.size() / 2; j++)
         {
             double freq;
             freq = deltaFreq * j;
+            //若当前频率小于最小控制频率，则不对其傅里叶幅值进行调整
+            if(freq<freqCtrl.front())
+                continue;
             // if (freq < freqCtrl.front())
             //     ampFourier.at(j) = 0;
             //std::cout<<deltaFreq<<std::endl;
@@ -109,6 +103,7 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
                 // fourSeries.at(j)=fourSeries.at(j)*ratio;
                 ampFourier.at(j) = ampFourier.at(j) * ratio;
             }
+            //当前频率大于频率区间上限时，退出循环
             if (freq > freq2)
                 break;
         }
@@ -116,14 +111,15 @@ void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp,
 
         //重新计算系数数组
         //傅里叶幅值调整完成后，由新的幅值计算傅里叶系数数组，相位角保持不变
-        fourSeries[0]=ampFourier.front()*cp(cos(phiFourier.front()), sin(phiFourier.front()));
+        fourSeries[0]=ampFourier.front()*cp(1,0);
         for(int i=1;i<fourSeries.size()/2;i++)
         {
+            // double phi=phaseAngle.at(i-1);
             double phi=phiFourier.at(i);
             fourSeries.at(i)=ampFourier.at(i)*cp(cos(phi),sin(phi));
             fourSeries.at(fourSeries.size()-i)=std::conj(fourSeries.at(i));
         }
-        fourSeries.at(fourSeries.size()/2)=ampFourier.at(ampFourier.size()/2);
+        fourSeries.at(fourSeries.size()/2)=cp(ampFourier.at(ampFourier.size()/2),0.0);
         //由系数求点值
         fastFourierTrans(fourSeries, accSeries, 1);
         //计算调整后的时程曲线

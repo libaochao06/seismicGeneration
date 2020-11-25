@@ -12,7 +12,7 @@ void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAn
     for(auto it=psd.data.begin();it!=psd.data.end();it++)
     {
         double value;
-        value=2.0*(it->getY())*dw;
+        value=0.5*(it->getY())*dw;
         ampFourier.push_back(sqrt(value));
     }
 
@@ -25,7 +25,7 @@ void initAcc(const powerSpectrumDensity &psd, const std::vector<double> &phaseAn
         fourSeries[i]=ampFourier[i]*cp(cos(phi),sin(phi));
         fourSeries[nFour-i]=std::conj(fourSeries[i]);
     }
-    fourSeries[nFour/2]=ampFourier[nFour/2-1];
+    fourSeries[nFour/2]=cp(ampFourier[nFour/2-1],0.0);
 
     //由快速傅里中变换求初始时程的复数形式
     vector<cp> accTimeHistComplex;

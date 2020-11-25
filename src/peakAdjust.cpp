@@ -26,7 +26,7 @@ void peakAdjust(std::vector<double>& acc, double amp)
     // }
     //
     int numPeak;//时程曲线极值点调整个数
-    numPeak=10;
+    numPeak=50;
     //数据点调整标识符
     //若已被调整过则为1，否则为0
     std::vector<int> indice;

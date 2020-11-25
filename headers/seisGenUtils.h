@@ -52,19 +52,20 @@ void timeHistToSpectrum(const std::vector<double> &acc, const std::vector<double
 void integralNewmark(const std::vector<double> &acc, const std::vector<double> &freqCtrl, double dt, Spectrum &calSpec);
 //计算反应谱与目标谱反应包络性检查
 bool targetRspEnvCheck(const Spectrum &targetRsp, const Spectrum &calRsp, std::ofstream &logFile);
+bool targetRspEnvCheck(const rspError &err, std::ofstream &logFile);
 //根据目标反应谱对人工时程进行调整
-void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile);
+void fourierAmplitudeAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, const std::vector<double> &phaseAngle, std::ofstream &logFile);
 //最大反应计算
 void maxResp(const std::vector<double> &acc, double freq, double damp, double dt, std::vector<double> &results);
 double maxResp(const std::vector<double> &acc, double freq, double damp, double dt);
 //窄带时程调整法对人工时程进行调整
 void narrowBandAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile);
 //人工时程拟合调整函数
-void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile);
+void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, const std::vector<double> &phaseAngle, std::ofstream &logFile);
 //计算反应谱与目标反应谱误差计算函数
-double errorCalRspToTargetRsp(const Spectrum &targetRsp, const Spectrum &calRsp);
+rspError errorCalRspToTargetRsp(const Spectrum &targetRsp, const Spectrum &calRsp);
 //根据目标功率谱进行人工时程调整
-void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, const SeisGenPara &params, std::ofstream &logFile);
+void targetPsdAdjust(std::vector<double> &acc, const powerSpectrumDensity &psd, const SeisGenPara &params, const std::vector<double> &phaseAngle, std::ofstream &logFile);
 //由人工时程计算功率谱函数
 void timeHistToPsd(const std::vector<double> &acc, powerSpectrumDensity &psd, const SeisGenPara &params);
 //查找时程曲线绝对值的最大值
@@ -76,4 +77,12 @@ void respConvolution(const std::vector<double> &f, const std::vector<double> &g,
 void timeHistScale(std::vector<double> &acc, const double factor, const std::vector<double> &curve);
 //**按照比例系数进行缩放
 void timeHistScale(std::vector<double> &acc, const double factor);
+//计算传递函数
+void transFunction(double omega0, double deltaOmega, double damp, int nSize, std::vector<std::complex<double>> &Hw);
+//窄带时程构造函数
+void narrowBandAcc(double deltaS, double omegac, double omega, double maxTime, int nSize, double dt, std::vector<double> &deltaAcc);
+//窄带时程反演计算函数
+void nBandAccRevByTransFunc(std::vector<double> &deltaAcc, const std::vector<std::complex<double>> &Haw);
+//窄带时程端头振荡调节函数
+void nBandAccEndAdjust(std::vector<double> &deltaAcc, const double damp, double dt, const double deltaS, const double maxTime, const double omegac, const double omega);
 #endif

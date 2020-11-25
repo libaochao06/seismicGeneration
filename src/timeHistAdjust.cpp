@@ -1,6 +1,6 @@
 #include "seisGenUtils.h"
 
-void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, std::ofstream &logFile)
+void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const SeisGenPara &params, const std::vector<double> &phaseAngle, std::ofstream &logFile)
 {
     //峰值加速度
     double maxAcc=0;
@@ -23,7 +23,7 @@ void timeHistAdjust(std::vector<double> &acc, const Spectrum &targetRsp, const S
         nCycle++;
         logFile<<">>第"<<nCycle<<"轮迭代修正开始！"<<std::endl;
         //傅里叶幅值调整
-        fourierAmplitudeAdjust(acc, targetRsp, params, logFile);
+        fourierAmplitudeAdjust(acc, targetRsp, params, phaseAngle, logFile);
         //窄带时程调整
         //narrowBandAdjust(acc, targetRsp, params, logFile);
         //重新计算反应谱并对其按照法规要求进行检查

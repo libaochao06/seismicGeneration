@@ -117,10 +117,12 @@ int main(int argc, char* argv[])
         logFile<<">>>>初始人工时程峰值加速度调整"<<endl;
         double desiredAmp;
         desiredAmp=params.maxAccels[&tRsp-&targetRsp[0]]*G;
-        timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
+        // timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
+        peakAdjust(accTimeHist, desiredAmp);
+        // peakReduction(accTimeHist, desiredAmp, envFunc);
         //基线调整
         logFile<<">>>>初始人工时程基线调整"<<endl;
-        baselineAdjust(accTimeHist, params.dt);
+        // baselineAdjust(accTimeHist, params.dt);
         logFile<<">>初始人工时程计算完成"<<endl;
         //目标反应谱包络性调整
         logFile<<">>人工时程反应谱包络性调整开始"<<endl;
@@ -128,33 +130,41 @@ int main(int argc, char* argv[])
         timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
         //判断计算反应谱与目标反应之间是否满足法规要求
         bool isChecked;
-        for(int ii=0;ii<50;ii++)
+        //根据反应谱和功率密度谱对人工时程进行傅里叶幅值调整
+        for(int ii=0;ii<200;ii++)
         {
             
-            fourierAmplitudeAdjust(accTimeHist, tRsp, params, logFile);
-            targetPsdAdjust(accTimeHist, psd, params, logFile);
-            // timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
-            // accEnvelop(accTimeHist, envFunc);
-            // peakAdjust(accTimeHist, desiredAmp);
-            // peakReduction(accTimeHist, desiredAmp);
-            // baselineAdjust(accTimeHist, params.dt);
+            fourierAmplitudeAdjust(accTimeHist, tRsp, params, phaseAngle, logFile);
+            targetPsdAdjust(accTimeHist, psd, params, phaseAngle, logFile);
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
-            double error;
-            error=errorCalRspToTargetRsp(tRsp, calSpec);
-            if(error<0.03)
+            rspError error=errorCalRspToTargetRsp(tRsp, calSpec);
+            if(fabs(error.maxNegErr)<0.05)
+            {
+                for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
+                {
+                    *it=(*it)*(1+fabs(error.maxNegErr));
+                }
+            }
+            // targetRspEnvCheck(error, logFile);
+            //当计算反应谱与目标反应谱间相对误差的均方差小于0.03时，则退出调整
+            if(error.errSquareRoot<0.03)
             {
                 std::cout<<ii<<std::endl;
                 break;
             }
         }
+        std::cout<<"Narrow Band Adjust!"<<std::endl;
+        narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+        peakAdjust(accTimeHist, desiredAmp);
+        peakReduction(accTimeHist, desiredAmp, envFunc);
+       
         // accEnvelop(accTimeHist, envFunc);
-        // timeHistScale(accTimeHist, desiredAmp/maxAbsOfTimeHist(accTimeHist));
-        // timeHistScale(accTimeHist, 1.01);
-        // baselineAdjust(accTimeHist, params.dt);
-        // peakReduction(accTimeHist, desiredAmp, envFunc);
+        baselineAdjust(accTimeHist, params.dt);
+        // timeHistScale(accTimeHist, 1.02);
+        //窄带时程调整
         // for(int ii=0;ii<0;ii++)
         // {
-        //     //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+            
             timeHistToSpectrum(accTimeHist, tRsp.getXSeries(), params.dt, calSpec);
         // }
         
@@ -170,19 +180,19 @@ int main(int argc, char* argv[])
             ofileS<<freq<<'\t'<<valueT<<'\t'<<valueC<<std::endl;
         }
         ofileS.close();
-        //narrowBandAdjust(accTimeHist, tRsp, params, logFile);
+        // narrowBandAdjust(accTimeHist, tRsp, params, logFile);
         //timeHistAdjust(accTimeHist, tRsp, params, logFile);
         
-        std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
-        for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
-        {
-            double t;
-            int loc;
-            loc=it-accTimeHist.begin();
-            t=loc*params.dt;
-            ofileT<<t<<"\t"<<*it<<endl;
-        }
-        ofileT.close();
+        // std::ofstream ofileT("TimeHistory.txt", std::ios_base::out);
+        // for(auto it=accTimeHist.begin();it!=accTimeHist.end();it++)
+        // {
+        //     double t;
+        //     int loc;
+        //     loc=it-accTimeHist.begin();
+        //     t=loc*params.dt;
+        //     ofileT<<t<<"\t"<<*it<<endl;
+        // }
+        // ofileT.close();
         //*******************************************************
         //计算反应谱与目标谱对比
     }

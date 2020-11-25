@@ -55,3 +55,19 @@ bool targetRspEnvCheck(const Spectrum &targetRsp, const Spectrum &calRsp, std::o
 		return false;
 	return true;
 }
+
+bool targetRspEnvCheck(const rspError &err, std::ofstream &logFile)
+{
+    logFile << "计算反应谱与目标反应谱包络性检查结果："<<std::endl;
+	logFile << "最大误差：" << err.maxErr <<"；最大正误差："<<err.maxPosErr<<"；最大负误差："<<err.maxNegErr<< '\n';
+	logFile << "低于目标谱10%控制点个数：" << err.nErr << '\n';
+	logFile << "低于目标谱控制点个数：" << err.nBelow << '\n';
+	logFile << "高于目标谱30%控制点个数：" << err.nAbove << std::endl;
+    if (err.nErr > 0)
+		return false;
+	if (err.nBelow > 5)
+		return false;
+	if (err.nAbove > 5)
+		return false;
+	return true;
+}

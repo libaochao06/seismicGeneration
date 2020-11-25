@@ -2,10 +2,10 @@ clear all;
 clc;
 dt=0.01;
 T=18.94;
-omegac=0.0125664*10;
-% omegac=0.5*pi;
+omegac=0.00165664*1;
+% -omegac=0.25*2*pi;
 deltaS=0.0750719;
-omega=33*2*pi;
+omega=0.1*2*pi;
 % omega=0.628319;
 t=[0:dt:40.95];
 nSize=length(t);
@@ -15,7 +15,7 @@ for i=1:length(t)
         a(i)=deltaS;
         continue;
     end
-    a(i)=deltaS*(sin(omegac*(t(i)-T))/omegac/(t(i)-T))^2*cos(omega*(t(i)-T));
+    a(i)=deltaS*(sin(omegac*(t(i)-T))/omegac/(t(i)-T))^4*cos(omega*(t(i)-T));
 end
 % plot(t,a);
 
@@ -35,7 +35,7 @@ for i=2:length(t)/2
     Aww(i)=Aw(i)/Hw(i);
     Aww(length(t)+2-i)=conj(Aww(i));
 end
-Aww(nSize/2+1)=Aw(nSize/2+1)/abs(Hw(nSize/2+1));
+Aww(nSize/2+1)=Aw(nSize/2+1)/(Hw(nSize/2+1));
 b=ifft(Aww);
 % plot(t,a)
-plot(t,real(b),t,abs(a));
+plot(t,real(b),t,a);

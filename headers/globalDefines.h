@@ -17,6 +17,20 @@ public:
     static const std::array<double, 8> increments;
 };
 
+class rspError
+{
+    public:
+    double errSquareRoot;
+    double maxNegErr;
+    double maxPosErr;
+    double maxErr;
+    int nErr;
+    int nBelow;
+    int nAbove;
+    rspError(double errSR, double mN, double mP, double mE, int nE, int nB, int nA);
+    rspError(const rspError &err);
+    rspError &operator=(const rspError & err);
+};
 
 enum class spectrumXType{Freq=1,Period=2, Omega=3};
 enum class spectrumYType{Accel=0, Vel=1, Disp=2};
